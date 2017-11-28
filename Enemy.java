@@ -51,7 +51,6 @@ public class Enemy extends Circle {
 				setCenterX( 300 );
 				dx = 0;
 				dy = -1;
-				System.out.println("turn");
 			}
 			else if ( getCenterY() < 100 ) {
 				setCenterY( 100 );
@@ -76,6 +75,14 @@ public class Enemy extends Circle {
 		setCenterX( getCenterX() + speed * dx);
 		setCenterY( getCenterY() + speed * dy);
 		distanceTraveled += speed;
+	}
+
+	public double getDistanceTraveled() {
+		return distanceTraveled;
+	}
+
+	public String toString() {
+		return Double.toString( getCenterX() ) + ", " + Double.toString( getCenterY() );
 	}
 
 }

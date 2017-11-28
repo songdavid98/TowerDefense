@@ -19,8 +19,12 @@ import javafx.animation.Interpolator;
 import javafx.scene.shape.Path;
 import javafx.util.Duration;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Set;
+import java.util.Iterator;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -29,10 +33,11 @@ public class Run extends Application {
 
 	private static Polyline path = new Polyline();
 	private static Pane playArea = new Pane();
-	private static HashSet<Enemy> enemies = new HashSet<Enemy>();
+	private static Set<Enemy> enemies = Collections.synchronizedSet( 
+		new LinkedHashSet<Enemy>() );
 	private static HashSet<Timer> timers = new HashSet<Timer>();
 	private static HashSet<Thread> threads = new HashSet<Thread>();
-	//public static HashSet<Projectiles> projectile = new HashSet<projectile>();
+	public static HashSet<Projectile> projectiles = new HashSet<Projectile>();
 
 
 	@Override
@@ -131,6 +136,8 @@ public class Run extends Application {
 	}
 
 	public void startRound() {
+		if ( !threads.isEmpty() )
+			return;
 		Thread spawn = new Thread( () -> spawnEnemies() );
 		spawn.run();
 		Thread frame = new Thread( () -> playFrame() );
@@ -158,15 +165,30 @@ public class Run extends Application {
 
 	public void playFrame() {
 		Timer timer = new Timer();
+		timers.add( timer );
 		TimerTask task = new TimerTask() {
 			public void run() {
 				Platform.runLater( () -> {
-					for (Enemy e : enemies) {
+					Iterator<Enemy> i = enemies.iterator();
+					while ( i.hasNext() ) {
+						Enemy e = i.next();
 						if ( e.isDead() ) {
-							//remove it from the playarea and enemies
+							playArea.getChildren().remove(e);
+							i.remove();
 							break;
 						}
 						e.move();
+						//System.out.println(e);
+					}
+					Iterator<Projectile> j = projectiles.iterator();
+					while ( j.hasNext() ) {
+						Projectile p = j.next();
+						if ( p.isDead() ) {
+							playArea.getChildren().remove(p);
+							j.remove();
+							break;
+						}
+						p.move();
 					}
 				});
 			}
