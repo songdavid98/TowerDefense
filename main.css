@@ -1,0 +1,41 @@
+HBox, VBox {
+	-fx-alignment: center;
+	-fx-padding: 10;
+}
+
+.menuButton {
+    -fx-background-color: transparent, lightblue;
+    -fx-padding: 25px;
+    -fx-text-align: center;
+    -fx-text-fill: black;
+    -fx-font-size: 25;
+    -fx-font-weight: bold;
+    -fx-background-insets: 0, 5;
+    -fx-background-radius: 15,20;
+}
+
+.button:hover {
+	-fx-scale-y: 1.1;
+}
+
+.title {
+	-fx-font-size: 40px;
+	-fx-font-weight: bold;
+}
+
+.text {
+	-fx-font-size: 14px;
+}
+
+.grass {
+	-fx-fill: lightgreen;
+}
+
+.controlBg {
+	-fx-fill: beige;
+}
+
+.path {
+	-fx-stroke: #C68F3D;
+	-fx-stroke-width: 30;
+}
