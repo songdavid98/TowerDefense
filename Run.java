@@ -27,9 +27,11 @@ import java.util.TimerTask;
 
 public class Run extends Application {
 
-	public static Polyline path = new Polyline();
-	public static Pane playArea = new Pane();
-	public static HashSet<Enemy> enemies = new HashSet<Enemy>();
+	private static Polyline path = new Polyline();
+	private static Pane playArea = new Pane();
+	private static HashSet<Enemy> enemies = new HashSet<Enemy>();
+	private static HashSet<Timer> timers = new HashSet<Timer>();
+	private static HashSet<Thread> threads = new HashSet<Thread>();
 	//public static HashSet<Projectiles> projectile = new HashSet<projectile>();
 
 
@@ -110,7 +112,13 @@ public class Run extends Application {
 	public HBox topMenu(Stage primaryStage) {
 		Button backButton = new Button("EXIT");
 		backButton.getStyleClass().add("menuButton");
-		backButton.setOnAction(e -> startMenu(primaryStage) );
+		backButton.setOnAction(e -> {
+			timers.stream()
+				.forEach( t -> t.cancel() );
+			threads.stream()
+				.forEach( t -> t.interrupt());
+			startMenu(primaryStage); 
+		});
 		
 		Button playButton = new Button("Start Round");
 		playButton.getStyleClass().add("menuButton");
@@ -128,10 +136,13 @@ public class Run extends Application {
 		Thread frame = new Thread( () -> playFrame() );
 		// to be done
 		frame.run();
+		threads.add( spawn );
+		threads.add( frame );
 	}
 
 	public void spawnEnemies() {
 		Timer timer = new Timer();
+		timers.add(timer);
 
 		TimerTask task = new TimerTask() {
 			public void run() {
