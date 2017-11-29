@@ -35,10 +35,11 @@ public class Run extends Application {
 	private static Pane playArea = new Pane();
 	private static Set<Enemy> enemies = Collections.synchronizedSet( 
 		new LinkedHashSet<Enemy>() );
+	public static HashSet<Projectile> projectiles = new HashSet<Projectile>();
+	public static HashSet<Tower> towers = new HashSet<Tower>();
 	private static HashSet<Timer> timers = new HashSet<Timer>();
 	private static HashSet<Thread> threads = new HashSet<Thread>();
-	public static HashSet<Projectile> projectiles = new HashSet<Projectile>();
-
+	
 
 	@Override
 	public void start(Stage primaryStage) {
@@ -143,6 +144,7 @@ public class Run extends Application {
 		Thread frame = new Thread( () -> playFrame() );
 		// to be done
 		frame.run();
+		towers.add( new Tower(325, 200, 500, 1, 20) );
 		threads.add( spawn );
 		threads.add( frame );
 	}
@@ -169,31 +171,51 @@ public class Run extends Application {
 		TimerTask task = new TimerTask() {
 			public void run() {
 				Platform.runLater( () -> {
-					Iterator<Enemy> i = enemies.iterator();
-					while ( i.hasNext() ) {
-						Enemy e = i.next();
-						if ( e.isDead() ) {
-							playArea.getChildren().remove(e);
-							i.remove();
-							break;
-						}
-						e.move();
-						//System.out.println(e);
-					}
-					Iterator<Projectile> j = projectiles.iterator();
-					while ( j.hasNext() ) {
-						Projectile p = j.next();
-						if ( p.isDead() ) {
-							playArea.getChildren().remove(p);
-							j.remove();
-							break;
-						}
-						p.move();
-					}
+					runEnemies();
+					runProjectiles();
+					runTowers();
 				});
 			}
 		};
 		timer.schedule( task , 0, 10);
+	}
+
+	public void runEnemies() {
+		Iterator<Enemy> i = enemies.iterator();
+		while ( i.hasNext() ) {
+			Enemy e = i.next();
+			if ( e.isDead() ) {
+				playArea.getChildren().remove(e);
+				i.remove();
+				break;
+			}
+			e.move();
+			//System.out.println(e);
+		}
+	}
+
+	public void runProjectiles() {
+		Iterator<Projectile> i = projectiles.iterator();
+		while ( i.hasNext() ) {
+			Projectile p = i.next();
+			if ( p.isDead() ) {
+				playArea.getChildren().remove(p);
+				i.remove();
+				break;
+			}
+			p.move();
+		}
+	}
+
+	public void runTowers() {
+		for (Tower t : towers) {
+			t.findTarget( enemies );
+			Projectile p = t.attack();
+			if (p != null) {
+				projectiles.add(p);
+				playArea.getChildren().add( p );
+			}
+		}
 	}
 
 	public void playScene(Stage primaryStage) {

@@ -1,39 +1,56 @@
 import java.util.Set;
-import java.util.iterator;
+import java.util.Iterator;
 
 public class Tower {
 
-	public int range = 250;
-	public int damage = 1;
+	private int range = 250;
+	private int damage = 1;
 
-	public Enemy target = null;
+	private Enemy target = null;
 
-	public double x = 0;
-	public double y = 0;
+	private int x = 0;
+	private int y = 0;
 
-	public Tower( int x, int y, int r, int d) {
+	private final int RATE;
+	private int cooldown = 0;
+
+	public Tower( int x, int y, int r, int d, int rate) {
 		range = r;
 		damage = d;
 		this.x = x;
 		this.y = y;
+		this.RATE = rate;
 	}
 
 	public void findTarget( Set<Enemy> enemies) {
-		target = enemies.iterator().next();
 		if (enemies.isEmpty())
 			return;
-
+		target = enemies.iterator().next();
+		if ( target.distanceFrom(x, y) < range )
+			return;
 		for (Enemy e : enemies) {
 			if ( e.distanceFrom(x, y) < range ) {
-				if ( target.)
-			}	
+				if ( target.getDistanceTraveled() > e.getDistanceTraveled() )
+					target = e;
+			}
 		}
-
 		//yet to do
 	}
 
 	public Projectile attack() {
-		Projectile p = new Projectile();
-		return p;
+		if ( cooldown == 0 ) {
+			cooldown = RATE;
+			Projectile p = new Projectile( damage );
+			p.setXY( x, y);
+			double height = target.getCenterX() - x;
+			double base = target.getCenterY() - y;
+			double dx = height/target.distanceFrom(x, y);
+			double dy = base/target.distanceFrom(x, y);
+			p.setdXY( dx, dy);
+
+			return p;	
+		}
+		cooldown--;
+		return null;
 	}
 }
