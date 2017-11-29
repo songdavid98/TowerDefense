@@ -12,11 +12,7 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.control.Button;
 import javafx.scene.text.Text;
 import javafx.scene.shape.Polyline;
-import javafx.scene.shape.Circle;
 
-import javafx.animation.PathTransition;
-import javafx.animation.Interpolator;
-import javafx.scene.shape.Path;
 import javafx.util.Duration;
 
 import java.util.Collections;
@@ -31,7 +27,6 @@ import java.util.TimerTask;
 
 public class Run extends Application {
 
-	private static Polyline path = new Polyline();
 	private static Pane playArea = new Pane();
 	private static Set<Enemy> enemies = Collections.synchronizedSet( 
 		new LinkedHashSet<Enemy>() );
@@ -108,7 +103,6 @@ public class Run extends Application {
 			0.0,650.0
 		});
 		road.getStyleClass().add("path");
-		path = road;
 
 		playArea.getChildren().addAll( grass, road );
 

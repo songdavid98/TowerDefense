@@ -1,7 +1,10 @@
 import java.util.Set;
 import java.util.Iterator;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 
-public class Tower {
+
+public class Tower extends ImageView {
 
 	private int range = 250;
 	private int damage = 1;
