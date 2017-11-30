@@ -45,12 +45,27 @@ public class Tower extends ImageView {
 			cooldown = RATE;
 			Projectile p = new Projectile( damage );
 			p.setXY( x, y);
-			double height = target.getCenterX() - x;
-			double base = target.getCenterY() - y;
-			double dx = height/target.distanceFrom(x, y);
-			double dy = base/target.distanceFrom(x, y);
+			double base = target.getCenterX() - x;
+			double height = target.getCenterY() - y;
+			System.out.print("base: ");
+			System.out.println(base);
+			System.out.print("height: ");
+			System.out.println(height);
+			double dx = base/target.distanceFrom(x, y);
+			double dy = height/target.distanceFrom(x, y);
 			p.setdXY( dx, dy);
-
+			if (height == 0) {
+				if (base > 0)
+					p.setRotate(90);
+				else
+					p.setRotate(-90);
+				return p;
+			}
+			double degrees = Math.toDegrees( Math.atan( -1* base / height) );
+			if ( height > 0)
+				degrees += 180;
+			p.setRotate( degrees );
+			System.out.println(degrees);
 			return p;	
 		}
 		cooldown--;
