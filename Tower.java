@@ -47,10 +47,6 @@ public class Tower extends ImageView {
 			p.setXY( x, y);
 			double base = target.getCenterX() - x;
 			double height = target.getCenterY() - y;
-			System.out.print("base: ");
-			System.out.println(base);
-			System.out.print("height: ");
-			System.out.println(height);
 			double dx = base/target.distanceFrom(x, y);
 			double dy = height/target.distanceFrom(x, y);
 			p.setdXY( dx, dy);
@@ -61,11 +57,10 @@ public class Tower extends ImageView {
 					p.setRotate(-90);
 				return p;
 			}
-			double degrees = Math.toDegrees( Math.atan( -1* base / height) );
+			double degrees = Math.toDegrees( Math.atan( -1*base / height) );
 			if ( height > 0)
 				degrees += 180;
 			p.setRotate( degrees );
-			System.out.println(degrees);
 			return p;	
 		}
 		cooldown--;

@@ -52,8 +52,6 @@ public class Run extends Application {
 
 		VBox v = new VBox();
 
-		Pane pane = new Pane();
-
 		Text title = new Text("Tower Defense");
 
 		title.getStyleClass().add("title");
@@ -83,8 +81,6 @@ public class Run extends Application {
 
 	public Pane map() {
 		playArea = new Pane();
-		// playArea.setHeight(750);
-		// playArea.setWidth(750);
 		playArea.setLayoutX(0);
 		playArea.setLayoutY(0);
 

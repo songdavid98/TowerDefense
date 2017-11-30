@@ -5,7 +5,7 @@ import java.util.HashSet;
 public class Projectile extends ImageView {
 
 	private int damage = 1;
-	private int speed = 10;
+	private int speed = 15;
 	private double dx = 1;
 	private double dy = 0;
 
@@ -21,8 +21,8 @@ public class Projectile extends ImageView {
 	}
 
 	public void setXY( int x, int y ) {
-		setX(x);
-		setY(y);
+		setX(x-16);
+		setY(y-16);
 	}
 
 	public void setdXY( double dx, double dy) {
