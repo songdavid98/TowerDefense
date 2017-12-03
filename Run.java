@@ -18,7 +18,6 @@ import javafx.util.Duration;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.Iterator;
 
@@ -29,7 +28,7 @@ public class Run extends Application {
 
 	private static Pane playArea = new Pane();
 	private static Set<Enemy> enemies = Collections.synchronizedSet( 
-		new LinkedHashSet<Enemy>() );
+		new HashSet<Enemy>() );
 	public static HashSet<Projectile> projectiles = new HashSet<Projectile>();
 	public static HashSet<Tower> towers = new HashSet<Tower>();
 	private static HashSet<Timer> timers = new HashSet<Timer>();
@@ -134,7 +133,9 @@ public class Run extends Application {
 		Thread frame = new Thread( () -> playFrame() );
 		// to be done
 		frame.run();
-		towers.add( new Tower(325, 200, 500, 1, 20) );
+		Tower t = new Tower(325, 200, 500, 1, 20);
+		towers.add( t );
+		playArea.getChildren().add( t );
 		threads.add( spawn );
 		threads.add( frame );
 	}
@@ -194,6 +195,7 @@ public class Run extends Application {
 				break;
 			}
 			p.move();
+			p.attackEnemies(enemies);
 		}
 	}
 

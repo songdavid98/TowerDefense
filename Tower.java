@@ -2,37 +2,52 @@ import java.util.Set;
 import java.util.Iterator;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.beans.property.DoubleProperty;
 
 
 public class Tower extends ImageView {
 
-	private int range = 250;
+	private int range = 200;
 	private int damage = 1;
 
 	private Enemy target = null;
+	private Projectile projectile;
 
-	private int x = 0;
-	private int y = 0;
-
-	private final int RATE;
+	private int RATE = 20;
 	private int cooldown = 0;
 
+	public Tower() {
+		System.out.println("tower()");
+		setFitHeight(64);
+		setFitWidth(64);
+		projectile = new Projectile(damage);
+	}
+
 	public Tower( int x, int y, int r, int d, int rate) {
+		System.out.println("tower(special)");
+		Image i = new Image("images/dartMonkey.png");
+		setImage( i );
+		setFitHeight(64);
+		setFitWidth(64);
+		setX(x);
+		setY(y);
 		range = r;
 		damage = d;
-		this.x = x;
-		this.y = y;
 		this.RATE = rate;
+		projectile = new Projectile(damage);
+		projectile.setXY(getX() + 32, getY() + 32);
 	}
 
 	public void findTarget( Set<Enemy> enemies) {
-		if (enemies.isEmpty())
+		if (enemies.isEmpty()) {
+			target = null;
 			return;
+		}
 		target = enemies.iterator().next();
-		if ( target.distanceFrom(x, y) < range )
+		if ( target.distanceFrom(getX(), getY()) < range )
 			return;
 		for (Enemy e : enemies) {
-			if ( e.distanceFrom(x, y) < range ) {
+			if ( e.distanceFrom( getX(), getY()) < range ) {
 				if ( target.getDistanceTraveled() > e.getDistanceTraveled() )
 					target = e;
 			}
@@ -41,14 +56,14 @@ public class Tower extends ImageView {
 	}
 
 	public Projectile attack() {
-		if ( cooldown == 0 ) {
+		if ( cooldown <= 0 && target != null) {
 			cooldown = RATE;
-			Projectile p = new Projectile( damage );
-			p.setXY( x, y);
-			double base = target.getCenterX() - x;
-			double height = target.getCenterY() - y;
-			double dx = base/target.distanceFrom(x, y);
-			double dy = height/target.distanceFrom(x, y);
+			Projectile p = projectile.clone();
+			p.setImage(projectile.getImage());
+			double base = target.getCenterX() - p.getX();
+			double height = target.getCenterY() - p.getY();
+			double dx = base/target.distanceFrom(getX(), p.getX());
+			double dy = height/target.distanceFrom(getX(), p.getY());
 			p.setdXY( dx, dy);
 			if (height == 0) {
 				if (base > 0)
@@ -61,6 +76,7 @@ public class Tower extends ImageView {
 			if ( height > 0)
 				degrees += 180;
 			p.setRotate( degrees );
+			setRotate(degrees);
 			return p;	
 		}
 		cooldown--;
