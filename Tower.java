@@ -17,14 +17,12 @@ public class Tower extends ImageView {
 	private int cooldown = 0;
 
 	public Tower() {
-		System.out.println("tower()");
 		setFitHeight(64);
 		setFitWidth(64);
 		projectile = new Projectile(damage);
 	}
 
 	public Tower( int x, int y, int r, int d, int rate) {
-		System.out.println("tower(special)");
 		Image i = new Image("images/dartMonkey.png");
 		setImage( i );
 		setFitHeight(64);

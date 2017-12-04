@@ -24,6 +24,9 @@ import java.util.Iterator;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import javafx.scene.control.RadioButton; 
+import javafx.scene.control.ToggleGroup; 
+
 public class Run extends Application {
 
 	private static Pane playArea = new Pane();
@@ -34,6 +37,7 @@ public class Run extends Application {
 	private static HashSet<Timer> timers = new HashSet<Timer>();
 	private static HashSet<Thread> threads = new HashSet<Thread>();
 	
+	private static String selection = "";
 
 	@Override
 	public void start(Stage primaryStage) {
@@ -49,11 +53,7 @@ public class Run extends Application {
 
 	public void startMenu(Stage primaryStage) {
 
-		VBox v = new VBox();
-
-		Text title = new Text("Tower Defense");
-
-		title.getStyleClass().add("title");
+		VBox v = PaneCreator.startMenu();
 
 		Button startButton = new Button("START");
 		Button helpButton = new Button("HELP");
@@ -68,7 +68,7 @@ public class Run extends Application {
 		helpButton.setOnAction( e -> helpScene( primaryStage ) );
 		quitButton.setOnAction( e -> Platform.exit() );
 
-		v.getChildren().addAll( title, startButton, helpButton, quitButton);
+		v.getChildren().addAll( startButton, helpButton, quitButton);
 
 		Scene scene = new Scene(v, 500, 500);
 		scene.getStylesheets().add("main.css");
@@ -78,33 +78,11 @@ public class Run extends Application {
 		primaryStage.show();
 	}
 
-	public Pane map() {
-		playArea = new Pane();
-		playArea.setLayoutX(0);
-		playArea.setLayoutY(0);
-
-		Rectangle grass = new Rectangle();
-		grass.getStyleClass().add("grass");
-		grass.setWidth(750);
-		grass.setHeight(750);
-
-		Polyline road = new Polyline();
-		road.getPoints().addAll( new Double[] {
-			0.0,300.0,
-			300.0,300.0,
-			300.0,100.0,
-			600.0,100.0,
-			600.0,650.0,
-			0.0,650.0
-		});
-		road.getStyleClass().add("path");
-
-		playArea.getChildren().addAll( grass, road );
-
-		return playArea;
-	}
-
 	public HBox topMenu(Stage primaryStage) {
+		Button playButton = new Button("Start Round");
+		playButton.getStyleClass().add("menuButton");
+		playButton.setOnAction( e -> startRound() );
+
 		Button backButton = new Button("EXIT");
 		backButton.getStyleClass().add("menuButton");
 		backButton.setOnAction(e -> {
@@ -114,14 +92,9 @@ public class Run extends Application {
 				.forEach( t -> t.interrupt());
 			startMenu(primaryStage); 
 		});
-		
-		Button playButton = new Button("Start Round");
-		playButton.getStyleClass().add("menuButton");
-		playButton.setOnAction( e -> startRound() );
 
 		HBox menu = new HBox();
 		menu.getChildren().addAll( playButton, backButton );
-
 		return menu;
 	}
 
@@ -131,7 +104,6 @@ public class Run extends Application {
 		Thread spawn = new Thread( () -> spawnEnemies() );
 		spawn.run();
 		Thread frame = new Thread( () -> playFrame() );
-		// to be done
 		frame.run();
 		Tower t = new Tower(325, 200, 500, 1, 20);
 		towers.add( t );
@@ -213,43 +185,41 @@ public class Run extends Application {
 	public void playScene(Stage primaryStage) {
 		Pane p = new Pane();
 
-		Pane controls = new Pane();
+		Pane controls = PaneCreator.controls();
 
-		controls.setLayoutX(750);
-		controls.setLayoutY(0);
+		RadioButton rbDart = new RadioButton("Dart Monkey");
+		RadioButton rbCannon = new RadioButton("Cannon");
+		RadioButton rbSuper = new RadioButton("Super Monkey");
+		ToggleGroup towerSelect = new ToggleGroup();
+		rbDart.setToggleGroup( towerSelect );
+		rbCannon.setToggleGroup( towerSelect );
+		rbSuper.setToggleGroup( towerSelect );
+		rbDart.setOnAction(e -> selection = "dart");
+		rbCannon.setOnAction(e -> selection = "cannon");
+		rbSuper.setOnAction(e -> selection = "super");
 
-		Rectangle controlBg = new Rectangle();
-		controlBg.getStyleClass().add("controlBg");
-		controlBg.setWidth(250);
-		controlBg.setHeight(750);
+		VBox v = new VBox(8);
+		v.getChildren().addAll( topMenu(primaryStage), rbDart, rbCannon, rbSuper );
 
-		controls.getChildren().addAll( controlBg, topMenu(primaryStage) );
+		controls.getChildren().add( v );
 
-		p.getChildren().addAll( map() , controls );
+		playArea = PaneCreator.map();
+		p.getChildren().addAll( playArea , controls );
 
 		Scene scene = new Scene( p , 1000, 750);
 
 		scene.getStylesheets().add("main.css");
-
-		primaryStage.setTitle("Run");
+		primaryStage.setTitle("Play");
 		primaryStage.setScene( scene );
 		primaryStage.show();
 	}
 
 	public void helpScene(Stage primaryStage) {
-		Text info = new Text("a lot");
-		info.setText("The goal of this game is to survive as long as possible. \n"+
-			"You do this by defeating enemies with towers that you will have to place down.\n"+
-			"You will use your mouse to interact with the menus given. \n"+
-			"Good luck and have fun!");
-
-		info.getStyleClass().add("text");
-
 		Button backButton = new Button("BACK");
 		backButton.getStyleClass().add("menuButton");
 		backButton.setOnAction(e -> startMenu(primaryStage) );
-		VBox  v = new VBox();
-		v.getChildren().addAll( info, backButton );
+		VBox  v = PaneCreator.helpMenu();
+		v.getChildren().add( backButton );
 
 		Scene scene = new Scene( v , 500, 500);
 		scene.getStylesheets().add("main.css");
