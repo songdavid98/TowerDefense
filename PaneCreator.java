@@ -53,7 +53,6 @@ public class PaneCreator {
 			t.setXY( (int)e.getX(), (int)e.getY() );
 			Run.towers.add(t);
 			Run.playArea.getChildren().add(t);
-			System.out.println( t.getX() );
 		});
 
 		return map;

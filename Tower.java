@@ -18,6 +18,8 @@ public class Tower extends ImageView {
 	private int price = 200;
 
 	public Tower() {
+		Image i = new Image("images/dartMonkey.png");
+		setImage( i );
 		projectile = new Projectile(damage);
 		projectile.setXY(getX() + 32, getY() + 32);
 	}
@@ -34,6 +36,7 @@ public class Tower extends ImageView {
 	public void setXY(int x, int y) {
 		setX(x);
 		setY(y);
+		projectile.setXY(getX() + 32, getY() + 32);
 	}
 
 	public void findTarget( Set<Enemy> enemies) {
