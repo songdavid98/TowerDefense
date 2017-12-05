@@ -8,32 +8,32 @@ import javafx.beans.property.DoubleProperty;
 public class Tower extends ImageView {
 
 	private int range = 200;
-	private int damage = 1;
+	protected int damage = 1;
 
-	private Enemy target = null;
-	private Projectile projectile;
+	protected Enemy target = null;
+	protected Projectile projectile;
 
-	private int RATE = 20;
-	private int cooldown = 0;
+	protected int RATE = 20;
+	protected int cooldown = 0;
+	private int price = 200;
 
 	public Tower() {
-		setFitHeight(64);
-		setFitWidth(64);
-		projectile = new Projectile(damage);
-	}
-
-	public Tower( int x, int y, int r, int d, int rate) {
-		Image i = new Image("images/dartMonkey.png");
-		setImage( i );
-		setFitHeight(64);
-		setFitWidth(64);
-		setX(x);
-		setY(y);
-		range = r;
-		damage = d;
-		this.RATE = rate;
 		projectile = new Projectile(damage);
 		projectile.setXY(getX() + 32, getY() + 32);
+	}
+
+	public Tower( int x, int y) {
+		Image i = new Image("images/dartMonkey.png");
+		setImage( i );
+		setX(x);
+		setY(y);
+		projectile = new Projectile(damage);
+		projectile.setXY(getX() + 32, getY() + 32);
+	}
+
+	public void setXY(int x, int y) {
+		setX(x);
+		setY(y);
 	}
 
 	public void findTarget( Set<Enemy> enemies) {
@@ -51,6 +51,10 @@ public class Tower extends ImageView {
 			}
 		}
 		//yet to do
+	}
+
+	public int getPrice() {
+		return price;
 	}
 
 	public Projectile attack() {

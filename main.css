@@ -23,6 +23,10 @@ HBox, VBox {
 	-fx-font-weight: bold;
 }
 
+.large {
+	-fx-font-size: 24px;
+}
+
 .text {
 	-fx-font-size: 14px;
 }

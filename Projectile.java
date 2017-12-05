@@ -53,7 +53,8 @@ public class Projectile extends ImageView{
 			if ( e.distanceFrom( getX() +16, getY()+16) < 40 ) {
 				e.takeDamage( damage );
 				health--;
-				break;
+				if (health < 1)
+					break;
 			}
 		}
 	}

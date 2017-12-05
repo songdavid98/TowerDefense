@@ -3,17 +3,6 @@ import javafx.application.Platform;
 import javafx.stage.Stage; 
 import javafx.scene.Scene; 
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.VBox;
-import javafx.scene.layout.HBox;
-import javafx.scene.paint.Color;
-
-import javafx.scene.shape.Shape;
-import javafx.scene.shape.Rectangle;
-import javafx.scene.control.Button;
-import javafx.scene.text.Text;
-import javafx.scene.shape.Polyline;
-
-import javafx.util.Duration;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -23,13 +12,11 @@ import java.util.Iterator;
 
 import java.util.Timer;
 import java.util.TimerTask;
-
-import javafx.scene.control.RadioButton; 
-import javafx.scene.control.ToggleGroup; 
+import javafx.beans.property.SimpleIntegerProperty;
 
 public class Run extends Application {
 
-	private static Pane playArea = new Pane();
+	public static Pane playArea = new Pane();
 	private static Set<Enemy> enemies = Collections.synchronizedSet( 
 		new HashSet<Enemy>() );
 	public static HashSet<Projectile> projectiles = new HashSet<Projectile>();
@@ -37,38 +24,24 @@ public class Run extends Application {
 	private static HashSet<Timer> timers = new HashSet<Timer>();
 	private static HashSet<Thread> threads = new HashSet<Thread>();
 	
-	private static String selection = "";
+	private static Stage primaryStage;
+	private static String selection;
+	public static SimpleIntegerProperty money = new SimpleIntegerProperty(1000);
 
 	@Override
-	public void start(Stage primaryStage) {
+	public void start(Stage stage) {
+		primaryStage = stage;
 		Pane pane = new Pane();
 		Scene scene = new Scene(pane, 500, 500);
 		scene.getStylesheets().add("main.css");
 		primaryStage.setTitle("Run");
 		primaryStage.setScene( scene );
 		primaryStage.show();
-
-		startMenu(primaryStage);
+		startMenu();
 	}
 
-	public void startMenu(Stage primaryStage) {
-
-		VBox v = PaneCreator.startMenu();
-
-		Button startButton = new Button("START");
-		Button helpButton = new Button("HELP");
-		Button quitButton = new Button("QUIT");
-
-		startButton.getStyleClass().add("menuButton");
-		helpButton.getStyleClass().add("menuButton");
-		quitButton.getStyleClass().add("menuButton");
-
-		startButton.setOnAction( e -> playScene( primaryStage ) );
-
-		helpButton.setOnAction( e -> helpScene( primaryStage ) );
-		quitButton.setOnAction( e -> Platform.exit() );
-
-		v.getChildren().addAll( startButton, helpButton, quitButton);
+	public static void startMenu() {
+		Pane v = PaneCreator.startMenu();
 
 		Scene scene = new Scene(v, 500, 500);
 		scene.getStylesheets().add("main.css");
@@ -78,44 +51,24 @@ public class Run extends Application {
 		primaryStage.show();
 	}
 
-	public HBox topMenu(Stage primaryStage) {
-		Button playButton = new Button("Start Round");
-		playButton.getStyleClass().add("menuButton");
-		playButton.setOnAction( e -> startRound() );
-
-		Button backButton = new Button("EXIT");
-		backButton.getStyleClass().add("menuButton");
-		backButton.setOnAction(e -> {
-			timers.stream()
-				.forEach( t -> t.cancel() );
-			threads.stream()
-				.forEach( t -> t.interrupt());
-			startMenu(primaryStage); 
-		});
-
-		HBox menu = new HBox();
-		menu.getChildren().addAll( playButton, backButton );
-		return menu;
-	}
-
-	public void startRound() {
+	public static void startRound() {
 		if ( !threads.isEmpty() )
 			return;
+		money.set(1000);
 		Thread spawn = new Thread( () -> spawnEnemies() );
 		spawn.run();
 		Thread frame = new Thread( () -> playFrame() );
 		frame.run();
-		Tower t = new Tower(325, 200, 500, 1, 20);
+		Tower t = new DartMonkey(325, 200);
 		towers.add( t );
 		playArea.getChildren().add( t );
 		threads.add( spawn );
 		threads.add( frame );
 	}
 
-	public void spawnEnemies() {
+	public static void spawnEnemies() {
 		Timer timer = new Timer();
 		timers.add(timer);
-
 		TimerTask task = new TimerTask() {
 			public void run() {
 				Platform.runLater( () -> {
@@ -128,7 +81,7 @@ public class Run extends Application {
 		timer.schedule( task , 0, 1000);
 	}
 
-	public void playFrame() {
+	public static void playFrame() {
 		Timer timer = new Timer();
 		timers.add( timer );
 		TimerTask task = new TimerTask() {
@@ -143,21 +96,21 @@ public class Run extends Application {
 		timer.schedule( task , 0, 10);
 	}
 
-	public void runEnemies() {
+	public static void runEnemies() {
 		Iterator<Enemy> i = enemies.iterator();
 		while ( i.hasNext() ) {
 			Enemy e = i.next();
 			if ( e.isDead() ) {
 				playArea.getChildren().remove(e);
 				i.remove();
+				money.set( money.get() + 1);
 				break;
 			}
 			e.move();
-			//System.out.println(e);
 		}
 	}
 
-	public void runProjectiles() {
+	public static void runProjectiles() {
 		Iterator<Projectile> i = projectiles.iterator();
 		while ( i.hasNext() ) {
 			Projectile p = i.next();
@@ -171,7 +124,7 @@ public class Run extends Application {
 		}
 	}
 
-	public void runTowers() {
+	public static void runTowers() {
 		for (Tower t : towers) {
 			t.findTarget( enemies );
 			Projectile p = t.attack();
@@ -182,26 +135,10 @@ public class Run extends Application {
 		}
 	}
 
-	public void playScene(Stage primaryStage) {
+	public static void playScene() {
 		Pane p = new Pane();
 
 		Pane controls = PaneCreator.controls();
-
-		RadioButton rbDart = new RadioButton("Dart Monkey");
-		RadioButton rbCannon = new RadioButton("Cannon");
-		RadioButton rbSuper = new RadioButton("Super Monkey");
-		ToggleGroup towerSelect = new ToggleGroup();
-		rbDart.setToggleGroup( towerSelect );
-		rbCannon.setToggleGroup( towerSelect );
-		rbSuper.setToggleGroup( towerSelect );
-		rbDart.setOnAction(e -> selection = "dart");
-		rbCannon.setOnAction(e -> selection = "cannon");
-		rbSuper.setOnAction(e -> selection = "super");
-
-		VBox v = new VBox(8);
-		v.getChildren().addAll( topMenu(primaryStage), rbDart, rbCannon, rbSuper );
-
-		controls.getChildren().add( v );
 
 		playArea = PaneCreator.map();
 		p.getChildren().addAll( playArea , controls );
@@ -214,17 +151,28 @@ public class Run extends Application {
 		primaryStage.show();
 	}
 
-	public void helpScene(Stage primaryStage) {
-		Button backButton = new Button("BACK");
-		backButton.getStyleClass().add("menuButton");
-		backButton.setOnAction(e -> startMenu(primaryStage) );
-		VBox  v = PaneCreator.helpMenu();
-		v.getChildren().add( backButton );
-
+	public static void helpScene() {
+		Pane v = PaneCreator.helpMenu();
 		Scene scene = new Scene( v , 500, 500);
 		scene.getStylesheets().add("main.css");
 		primaryStage.setScene( scene );
 		primaryStage.show();
+	}
+
+	public static void setSelection(String s) {
+		selection = s;
+	}
+	public static String getSelection() {
+		return selection;
+	}					
+	public static HashSet<Timer> getTimers() {
+		return timers;
+	}
+	public static HashSet<Thread> getThreads() {
+		return threads;
+	}
+	public static SimpleIntegerProperty getMoney() {
+		return money;
 	}
 
 	public static void main(String[] args) {
