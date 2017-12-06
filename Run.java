@@ -17,7 +17,7 @@ import javafx.beans.property.SimpleIntegerProperty;
 public class Run extends Application {
 
 	public static Pane playArea = new Pane();
-	private static Set<Enemy> enemies = Collections.synchronizedSet( 
+	public static Set<Enemy> enemies = Collections.synchronizedSet( 
 		new HashSet<Enemy>() );
 	public static HashSet<Projectile> projectiles = new HashSet<Projectile>();
 	public static HashSet<Tower> towers = new HashSet<Tower>();
@@ -25,7 +25,8 @@ public class Run extends Application {
 	private static HashSet<Thread> threads = new HashSet<Thread>();
 	
 	private static Stage primaryStage;
-	private static String selection;
+	private static String selection = "";
+	public static SimpleIntegerProperty score = new SimpleIntegerProperty(0);
 	public static SimpleIntegerProperty money = new SimpleIntegerProperty(1000);
 
 	@Override
@@ -59,9 +60,6 @@ public class Run extends Application {
 		spawn.run();
 		Thread frame = new Thread( () -> playFrame() );
 		frame.run();
-		Tower t = new DartMonkey(325, 200);
-		towers.add( t );
-		playArea.getChildren().add( t );
 		threads.add( spawn );
 		threads.add( frame );
 	}
@@ -78,7 +76,7 @@ public class Run extends Application {
 				});
 			}
 		};
-		timer.schedule( task , 0, 1000);
+		timer.schedule( task , 0, 300);
 	}
 
 	public static void playFrame() {
@@ -97,6 +95,7 @@ public class Run extends Application {
 	}
 
 	public static void runEnemies() {
+		boolean isLoss = false;
 		Iterator<Enemy> i = enemies.iterator();
 		while ( i.hasNext() ) {
 			Enemy e = i.next();
@@ -104,10 +103,17 @@ public class Run extends Application {
 				playArea.getChildren().remove(e);
 				i.remove();
 				money.set( money.get() + 1);
+				score.set( score.get() + 1);
+				break;
+			}
+			if (e.getCenterY() == 650 && e.getCenterX() < 1 ) {
+				isLoss = true;
 				break;
 			}
 			e.move();
 		}
+		if (isLoss)
+			loseScene();
 	}
 
 	public static void runProjectiles() {
@@ -159,6 +165,40 @@ public class Run extends Application {
 		primaryStage.show();
 	}
 
+	public static void loseScene() {
+		timers.stream()
+			.forEach( t -> t.cancel() );
+		threads.stream()
+			.forEach( t -> t.interrupt());
+		timers.clear();
+		threads.clear();
+		towers.clear();
+		enemies.clear();
+		projectiles.clear();
+		Pane v = PaneCreator.loseScene();
+		Scene scene = new Scene( v , 500, 500);
+		scene.getStylesheets().add("main.css");
+		primaryStage.setScene( scene );
+		primaryStage.show();
+	}
+
+	public static void buyTower(int x, int y) {
+		Tower t = new Tower();
+			switch( selection ) {
+				case "dart": 	t = new DartMonkey();
+								break;
+				case "cannon": 	t = new Cannon();
+								break;
+				default: 		return;
+			}
+			if ( t.getPrice() > money.getValue() )
+				return;
+			money.set(Run.money.get() - t.getPrice() );
+			t.setXY( x-32, y-32 );
+			towers.add(t);
+			playArea.getChildren().add(t);
+	}
+
 	public static void setSelection(String s) {
 		selection = s;
 	}
@@ -173,6 +213,9 @@ public class Run extends Application {
 	}
 	public static SimpleIntegerProperty getMoney() {
 		return money;
+	}
+	public static SimpleIntegerProperty getScore() {
+		return score;
 	}
 
 	public static void main(String[] args) {

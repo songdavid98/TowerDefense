@@ -3,18 +3,17 @@ import java.util.Iterator;
 import javafx.scene.image.Image;
 
 public class Bomb extends Projectile {
-	private int speed = 12;
-	private int explosionRange = 75;
+	protected int speed = 12;
+	private int explosionRange = 125;
 	private int collisionDistance = 40;
-	private int health = 1;
-	private int damage = 1;
+	protected int health = 1;
+	protected int damage = 1;
 
 	public Bomb() {
-
+		setImage( new Image("images/bomb.png") );
 	}
 	public Bomb(int dam) {
-		Image i = new Image("images/dart.png");
-		setImage( i );
+		setImage( new Image("images/bomb.png") );
 		damage = dam;
 	}
 
@@ -23,7 +22,6 @@ public class Bomb extends Projectile {
 		while ( i.hasNext() ) {
 			Enemy e = i.next();
 			if ( e.distanceFrom( getX() +16, getY()+16) < collisionDistance ) {
-				e.takeDamage( damage );
 				health--;
 				break;
 			}
@@ -37,5 +35,28 @@ public class Bomb extends Projectile {
 				}
 			}
 		}
+	}
+
+	//for some reason, the health variable wasn't being inherited correctly
+	public boolean isDead() {
+		return (health < 1 || distanceTraveled > maxRange);
+	}
+
+	public void setXY( double x, double y ) {
+		super.setXY(x, y);
+	}
+
+	public Bomb clone() {
+		Bomb b = new Bomb();
+		b.health = health;
+		b.speed = speed;
+		b.dx = dx;
+		b.dy = dy;
+		b.setX( getX() );
+		b.setY( getY() );
+		b.distanceTraveled = distanceTraveled;
+		b.maxRange = maxRange;
+		b.setImage( getImage() );
+		return b;
 	}
 }

@@ -2,25 +2,35 @@ import javafx.scene.image.Image;
 
 public class Cannon extends Tower {
 
-	private int range = 275;
-	private int damage = 1;
+	protected int range = 250;
+	protected int damage = 1;
+	protected int RATE = 80;
+	public int price = 500;
 
-	private int RATE = 30;
-
+	
 	public Cannon() {
-
+		setImage( new Image("images/cannon.png") );
+		projectile = new Bomb(damage);
+		projectile.setXY(getX() + 32, getY() + 32);
 	}
 
 	public Cannon( int x, int y) {
 		super(x, y);
 		setImage( new Image("images/cannon.png") );
 		projectile = new Bomb(damage);
+		projectile.setXY(getX() + 32, getY() + 32);
 	}
+
+	public int getPrice() {
+		return price;
+	}
+
+
 
 	public Projectile attack() {
 		if ( cooldown <= 0 && target != null) {
 			cooldown = RATE;
-			Projectile p = new Projectile( damage );
+			Bomb p =(Bomb)projectile.clone();
 			double realX = getX() + 32;
 			double realY = getY() + 32;
 			p.setXY( realX, realY);
@@ -46,5 +56,7 @@ public class Cannon extends Tower {
 		cooldown--;
 		return null;
 	}
+
+
 	
 }

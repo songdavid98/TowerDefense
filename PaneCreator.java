@@ -41,20 +41,8 @@ public class PaneCreator {
 
 		map.getChildren().addAll( grass, road );
 		map.setOnMouseReleased( e -> {
-			Tower t = new Tower();
-			switch(Run.getSelection()) {
-				case "dart": 	t = new DartMonkey();
-								break;
-				case "cannon": 	t = new Cannon();
-								break;
-				default: break;
-			}
-			Run.money.set(Run.money.get() - t.getPrice() );
-			t.setXY( (int)e.getX(), (int)e.getY() );
-			Run.towers.add(t);
-			Run.playArea.getChildren().add(t);
+			Run.buyTower( (int)e.getX(), (int)e.getY() );
 		});
-
 		return map;
 	}
 
@@ -87,6 +75,8 @@ public class PaneCreator {
 		info.setText("The goal of this game is to survive as long as possible. \n"+
 			"You do this by defeating enemies with towers that you will have to place down.\n"+
 			"You will use your mouse to interact with the menus given. \n"+
+			"Dart monkeys are a good source of cheap damage. \n" +
+			"Bomb towers do splash damage. " +
 			"Good luck and have fun!");
 
 		info.getStyleClass().add("text");
@@ -114,17 +104,22 @@ public class PaneCreator {
 		VBox v = new VBox(8);
 		v.getChildren().add( topMenu() );
 
+		Text score = new Text();
+		score.getStyleClass().add("large");
+		score.textProperty().bind(
+			new SimpleStringProperty("Score: ").concat(
+				Run.getScore().asString() ) );
 		Text moneyDisplay = new Text();
 		moneyDisplay.getStyleClass().add("large");
 		moneyDisplay.textProperty().bind(
 			new SimpleStringProperty("Money: ").concat( 
 				Run.getMoney().asString() ) );
 		CheckBox isBuying = new CheckBox("BuyingMode");
-		v.getChildren().add(moneyDisplay);
+		v.getChildren().addAll( score, moneyDisplay);
 
-		RadioButton rbDart = new RadioButton("Dart Monkey");
-		RadioButton rbCannon = new RadioButton("Cannon");
-		RadioButton rbSuper = new RadioButton("Super Monkey");
+		RadioButton rbDart = new RadioButton("Dart Monkey -Cost:200");
+		RadioButton rbCannon = new RadioButton("Cannon -Cost:500");
+		RadioButton rbSuper = new RadioButton("Super Monkey -Cost:3000");
 		ToggleGroup towerSelect = new ToggleGroup();
 		rbDart.setToggleGroup( towerSelect );
 		rbCannon.setToggleGroup( towerSelect );
@@ -151,7 +146,12 @@ public class PaneCreator {
 				.forEach( t -> t.cancel() );
 			Run.getThreads().stream()
 				.forEach( t -> t.interrupt());
-			Run.startMenu(); 
+			Run.getTimers().clear();
+			Run.getThreads().clear();
+			Run.towers.clear();
+			Run.enemies.clear();
+			Run.projectiles.clear();
+			Run.startMenu();
 		});
 
 		HBox menu = new HBox();
@@ -159,4 +159,21 @@ public class PaneCreator {
 		return menu;
 	}
 
+	public static Pane loseScene() {
+		VBox v = new VBox();
+		v.getStyleClass().add("controlBg");
+		Text loseText = new Text();
+		loseText.getStyleClass().add("large");
+		loseText.textProperty().bind(
+			new SimpleStringProperty("You let the enemy get to the end!\n"+
+				"Your final score: " ).concat(
+				Run.getScore().asString() ) );
+		Button backButton = new Button("Exit to Menu");
+		backButton.getStyleClass().add("menuButton");
+		backButton.setOnAction(e -> {
+			Run.startMenu();
+		});
+		v.getChildren().addAll( loseText, backButton );
+		return v;
+	}
 }

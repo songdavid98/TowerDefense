@@ -5,22 +5,21 @@ import java.util.Set;
 
 public class Projectile extends ImageView{
 
-	private int health = 1;
-	private int damage = 1;
-	private int speed = 15;
-	private double dx = 1;
-	private double dy = 0;
+	protected int health = 1;
+	protected int damage = 1;
+	protected int speed = 15;
+	protected double dx = 1;
+	protected double dy = 0;
 
-	private double distanceTraveled = 0;
-	private int maxRange = 400;
+	protected double distanceTraveled = 0;
+	protected int maxRange = 300;
 
 	public Projectile() {
 
 	}
 
 	public Projectile( int dam ) {
-		Image i = new Image("images/dart.png");
-		setImage( i );
+		setImage( new Image("images/dart.png") );
 		damage = dam;
 		setX(0);
 		setY(0);
@@ -72,5 +71,4 @@ public class Projectile extends ImageView{
 		p.setImage( getImage() );
 		return p;
 	}
-
 }

@@ -7,36 +7,33 @@ import javafx.beans.property.DoubleProperty;
 
 public class Tower extends ImageView {
 
-	private int range = 200;
+	private int range = 175;
 	protected int damage = 1;
 
 	protected Enemy target = null;
 	protected Projectile projectile;
 
-	protected int RATE = 20;
+	protected int RATE = 60;
 	protected int cooldown = 0;
-	private int price = 200;
+	public int price = 200;
 
 	public Tower() {
-		Image i = new Image("images/dartMonkey.png");
-		setImage( i );
-		projectile = new Projectile(damage);
-		projectile.setXY(getX() + 32, getY() + 32);
+
 	}
 
 	public Tower( int x, int y) {
-		Image i = new Image("images/dartMonkey.png");
-		setImage( i );
 		setX(x);
 		setY(y);
-		projectile = new Projectile(damage);
-		projectile.setXY(getX() + 32, getY() + 32);
 	}
 
 	public void setXY(int x, int y) {
 		setX(x);
 		setY(y);
 		projectile.setXY(getX() + 32, getY() + 32);
+	}
+
+	public int getPrice() {
+		return price;
 	}
 
 	public void findTarget( Set<Enemy> enemies) {
@@ -47,24 +44,23 @@ public class Tower extends ImageView {
 		target = enemies.iterator().next();
 		if ( target.distanceFrom(getX(), getY()) < range )
 			return;
+		boolean isFound = false;
 		for (Enemy e : enemies) {
 			if ( e.distanceFrom( getX(), getY()) < range ) {
-				if ( target.getDistanceTraveled() > e.getDistanceTraveled() )
+				isFound = true;
+				if ( target.getDistanceTraveled() < e.getDistanceTraveled() )
 					target = e;
 			}
 		}
+		if (!isFound)
+			target = null;
 		//yet to do
-	}
-
-	public int getPrice() {
-		return price;
 	}
 
 	public Projectile attack() {
 		if ( cooldown <= 0 && target != null) {
 			cooldown = RATE;
 			Projectile p = projectile.clone();
-			p.setImage(projectile.getImage());
 			double base = target.getCenterX() - p.getX();
 			double height = target.getCenterY() - p.getY();
 			double dx = base/target.distanceFrom(getX(), p.getX());
