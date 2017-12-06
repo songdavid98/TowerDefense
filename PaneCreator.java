@@ -92,6 +92,7 @@ public class PaneCreator {
 			"You will use your mouse to interact with the menus given. \n"+
 			"Dart monkeys are a good source of cheap damage. \n" +
 			"Bomb towers do splash damage. " +
+			"You can hold down the mouse button while a tower is selected to check its range.\n" +
 			"Good luck and have fun!");
 
 		info.getStyleClass().add("text");

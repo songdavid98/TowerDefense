@@ -118,7 +118,7 @@ public class Run extends Application {
 			if ( e.isDead() ) {
 				playArea.getChildren().remove(e);
 				i.remove();
-				money.set( money.get() + 2);
+				money.set( money.get() + 3);
 				score.set( score.get() + 1);
 				break;
 			}
