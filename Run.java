@@ -14,11 +14,17 @@ import java.util.Timer;
 import java.util.TimerTask;
 import javafx.beans.property.SimpleIntegerProperty;
 
+import javafx.scene.shape.Circle;
+
 public class Run extends Application {
 
 	public static Pane playArea = new Pane();
 	public static Set<Enemy> enemies = Collections.synchronizedSet( 
 		new HashSet<Enemy>() );
+	public static int enemyHealth = 1;
+	public static int enemySpeed = 1;
+	public static int enemySpawnCount = 0;
+
 	public static HashSet<Projectile> projectiles = new HashSet<Projectile>();
 	public static HashSet<Tower> towers = new HashSet<Tower>();
 	private static HashSet<Timer> timers = new HashSet<Timer>();
@@ -26,8 +32,11 @@ public class Run extends Application {
 	
 	private static Stage primaryStage;
 	private static String selection = "";
+	public static SimpleIntegerProperty playerLives = new SimpleIntegerProperty(10);
 	public static SimpleIntegerProperty score = new SimpleIntegerProperty(0);
 	public static SimpleIntegerProperty money = new SimpleIntegerProperty(1000);
+
+	public static Circle rangeCircle = new Circle();
 
 	@Override
 	public void start(Stage stage) {
@@ -55,7 +64,6 @@ public class Run extends Application {
 	public static void startRound() {
 		if ( !threads.isEmpty() )
 			return;
-		money.set(1000);
 		Thread spawn = new Thread( () -> spawnEnemies() );
 		spawn.run();
 		Thread frame = new Thread( () -> playFrame() );
@@ -67,13 +75,20 @@ public class Run extends Application {
 	public static void spawnEnemies() {
 		Timer timer = new Timer();
 		timers.add(timer);
+		
 		TimerTask task = new TimerTask() {
 			public void run() {
+				if (enemySpawnCount > 30) {
+					enemySpawnCount = 0;
+					enemyHealth++;
+					enemySpeed++;
+				}
 				Platform.runLater( () -> {
-					Enemy e = new Enemy();
+					Enemy e = new Enemy(enemyHealth, enemySpeed);
 					playArea.getChildren().add(e);
 					enemies.add(e);
 				});
+				enemySpawnCount++;
 			}
 		};
 		timer.schedule( task , 0, 300);
@@ -88,6 +103,8 @@ public class Run extends Application {
 					runEnemies();
 					runProjectiles();
 					runTowers();
+					if (playerLives.get() < 1)
+						loseScene();
 				});
 			}
 		};
@@ -95,25 +112,24 @@ public class Run extends Application {
 	}
 
 	public static void runEnemies() {
-		boolean isLoss = false;
 		Iterator<Enemy> i = enemies.iterator();
 		while ( i.hasNext() ) {
 			Enemy e = i.next();
 			if ( e.isDead() ) {
 				playArea.getChildren().remove(e);
 				i.remove();
-				money.set( money.get() + 1);
+				money.set( money.get() + 2);
 				score.set( score.get() + 1);
 				break;
 			}
 			if (e.getCenterY() == 650 && e.getCenterX() < 1 ) {
-				isLoss = true;
-				break;
+				playerLives.set( playerLives.get() -  e.getHealth()/2 
+					- e.getHealth()%1);
+				playArea.getChildren().remove(e);
+				i.remove();
 			}
 			e.move();
 		}
-		if (isLoss)
-			loseScene();
 	}
 
 	public static void runProjectiles() {
@@ -142,15 +158,17 @@ public class Run extends Application {
 	}
 
 	public static void playScene() {
+		money.set(1000);
+		score.set(0);
+		playerLives.set(100);
+		enemyHealth = 1;
+		enemySpeed = 1;
 		Pane p = new Pane();
-
 		Pane controls = PaneCreator.controls();
-
 		playArea = PaneCreator.map();
 		p.getChildren().addAll( playArea , controls );
 
 		Scene scene = new Scene( p , 1000, 750);
-
 		scene.getStylesheets().add("main.css");
 		primaryStage.setTitle("Play");
 		primaryStage.setScene( scene );
@@ -216,6 +234,9 @@ public class Run extends Application {
 	}
 	public static SimpleIntegerProperty getScore() {
 		return score;
+	}
+	public static SimpleIntegerProperty getPlayerLives() {
+		return playerLives;
 	}
 
 	public static void main(String[] args) {

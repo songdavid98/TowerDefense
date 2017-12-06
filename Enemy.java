@@ -24,6 +24,16 @@ public class Enemy extends Circle {
 		setCenterX(0);
 		setCenterY(300);
 		setRadius(25);
+		if (health < 3)
+			setFill( Color.RED );
+		else if (health < 5)
+			setFill( Color.BLUE );
+		else if (health < 7)
+			setFill( Color.GREEN );
+		else if (health < 9)
+			setFill( Color.YELLOW);
+		else if (health < 11)
+			setFill( Color.PINK );
 	}
 
 	public boolean isDead() {
@@ -38,6 +48,17 @@ public class Enemy extends Circle {
 
 	public void takeDamage(int d) {
 		health -= d;
+		speed -= d;
+		if (health < 3)
+			setFill( Color.RED );
+		else if (health < 5)
+			setFill( Color.BLUE );
+		else if (health < 7)
+			setFill( Color.GREEN );
+		else if (health < 9)
+			setFill( Color.YELLOW);
+		else if (health < 11)
+			setFill( Color.PINK );
 	}
 
 	public void setDirection( int dx, int dy) {
@@ -80,7 +101,9 @@ public class Enemy extends Circle {
 	public double getDistanceTraveled() {
 		return distanceTraveled;
 	}
-
+	public int getHealth() {
+		return health;
+	}
 	public String toString() {
 		return Double.toString( getCenterX() ) + ", " + Double.toString( getCenterY() );
 	}

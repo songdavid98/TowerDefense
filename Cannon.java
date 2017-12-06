@@ -3,7 +3,7 @@ import javafx.scene.image.Image;
 public class Cannon extends Tower {
 
 	protected int range = 250;
-	protected int damage = 1;
+	protected int damage = 2;
 	protected int RATE = 80;
 	public int price = 500;
 

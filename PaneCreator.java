@@ -3,16 +3,16 @@ import javafx.application.Platform;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Polyline;
+import javafx.scene.shape.Circle;
+import javafx.scene.paint.Color;
 
 import javafx.scene.layout.VBox;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
 import javafx.scene.control.Button;
 import javafx.scene.control.RadioButton; 
-import javafx.scene.control.ToggleGroup; 
-import javafx.scene.control.CheckBox;
+import javafx.scene.control.ToggleGroup;
 
-import javafx.util.converter.NumberStringConverter;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 
@@ -42,7 +42,22 @@ public class PaneCreator {
 		map.getChildren().addAll( grass, road );
 		map.setOnMouseReleased( e -> {
 			Run.buyTower( (int)e.getX(), (int)e.getY() );
+			Run.rangeCircle.setFill( Color.rgb(0,0,0,0) );
 		});
+		map.setOnMouseDragged( e -> {
+			Run.rangeCircle.setFill( Color.rgb(0,0,0,0.5) );
+			switch(Run.getSelection()) {
+				case "dart":	Run.rangeCircle.setRadius( 175 );
+								break;
+				case "cannon": 	Run.rangeCircle.setRadius( 250 );
+								break;
+				default: 		Run.rangeCircle.setRadius( 0 );
+								break;
+			}
+			Run.rangeCircle.setCenterX( e.getX() );
+			Run.rangeCircle.setCenterY( e.getY() );
+		});
+		map.getChildren().add( Run.rangeCircle );
 		return map;
 	}
 
@@ -114,21 +129,25 @@ public class PaneCreator {
 		moneyDisplay.textProperty().bind(
 			new SimpleStringProperty("Money: ").concat( 
 				Run.getMoney().asString() ) );
-		CheckBox isBuying = new CheckBox("BuyingMode");
-		v.getChildren().addAll( score, moneyDisplay);
+		Text playerLivesDisplay = new Text();
+		playerLivesDisplay.getStyleClass().add("large");
+		playerLivesDisplay.textProperty().bind(
+			new SimpleStringProperty("Lives: ").concat( 
+				Run.getPlayerLives().asString() ) );
+		v.getChildren().addAll( score, moneyDisplay, playerLivesDisplay);
 
 		RadioButton rbDart = new RadioButton("Dart Monkey -Cost:200");
 		RadioButton rbCannon = new RadioButton("Cannon -Cost:500");
-		RadioButton rbSuper = new RadioButton("Super Monkey -Cost:3000");
+		//RadioButton rbSuper = new RadioButton("Super Monkey -Cost:3000");
 		ToggleGroup towerSelect = new ToggleGroup();
 		rbDart.setToggleGroup( towerSelect );
 		rbCannon.setToggleGroup( towerSelect );
-		rbSuper.setToggleGroup( towerSelect );
+		//rbSuper.setToggleGroup( towerSelect );
 		rbDart.setOnAction(e -> Run.setSelection( "dart" ) );
 		rbCannon.setOnAction(e -> Run.setSelection( "cannon" ) );
-		rbSuper.setOnAction(e -> Run.setSelection( "super" ) );
+		//rbSuper.setOnAction(e -> Run.setSelection( "super" ) );
 
-		v.getChildren().addAll( rbDart, rbCannon, rbSuper );
+		v.getChildren().addAll( rbDart, rbCannon);
 
 		controls.getChildren().add( v );
 		return controls;

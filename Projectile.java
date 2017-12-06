@@ -6,7 +6,7 @@ import java.util.Set;
 public class Projectile extends ImageView{
 
 	protected int health = 1;
-	protected int damage = 1;
+	protected int damage = 2;
 	protected int speed = 15;
 	protected double dx = 1;
 	protected double dy = 0;

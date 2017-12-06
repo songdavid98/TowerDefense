@@ -4,10 +4,10 @@ import javafx.scene.image.Image;
 
 public class Bomb extends Projectile {
 	protected int speed = 12;
-	private int explosionRange = 125;
+	private int explosionRange = 150;
 	private int collisionDistance = 40;
 	protected int health = 1;
-	protected int damage = 1;
+	protected int damage = 2;
 
 	public Bomb() {
 		setImage( new Image("images/bomb.png") );
